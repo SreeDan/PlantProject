@@ -25,13 +25,14 @@ day_watered = ""
 rain_history = []
 current_rain = 0
 rain_forecast = []
-log = [None, None, None]
+log = [50.4333, 50.433333, 50.4333333]
 
 
 def update_log(new_entry):
 	for index in range(2):
 		log[index] = log[index + 1]
 	log[-1] = new_entry
+	print("New log is " + str(log))
 
 def update_dispense_log(new_entry):
 	#Writing how much water was dispensed to file
@@ -106,64 +107,67 @@ def calculate():
 	for rainfall in rain_history:
 		historical_average += rainfall
 	historical_average /= len(rain_history)
-
+	print("historical_average is " + str(historical_average))
 	for rainfall in rain_forecast:
 		future_average += rainfall
 	future_average /= len(rain_forecast)
-
+	print("future_average is " + str(future_average))
 
 	for dispensed in log:
 		if dispensed is not None:
 			log_average += dispensed
 	log_average /= len(log)
+	print("Log average is " + str(log_average))
 
 	total_average = (historical_average + future_average) / 2
-	baseline = 38.1 - current_rain
+	baseline = 25.4 - current_rain
+	print("Baseline is " + str(baseline))
 	amount = 0
 
-	if historical_average < 38.1:
-		if future_average < 38.1:
+	if historical_average < 25.4:
+		if future_average < 25.4:
 			if baseline <= 0:
-				if log_average > 19.05:
-					amount += 38.1 - total_average
-				else:
-					amount += 38.1
-			else:
-				if log_average > 19.05:
-					amount += 38.1 - total_average + baseline
-				else:
-					amount += 38.1 + baseline
-		else:
-			if baseline <= 0:
-				if log_average > 13:
+				if log_average > 12.7:
+#					amount += 25.4 - total_average
 					pass
 				else:
-					amount += 19.05
+					amount += 25.4
 			else:
-				if log_average > 19.05:
+				if log_average > 12.7:
+					amount += 25.4 - total_average
+				else:
+					amount += 25.4
+		else:
+			if baseline <= 0:
+				if log_average > 10:
+					pass
+				else:
+					amount += 12.7
+			else:
+				if log_average > 12.7:
 					amount += baseline
 				else:
-					amount += 19.05 + baseline
+					amount += 12.7 + baseline
 	else:
-		if future_average < 38.1:
+		if future_average < 25.4:
 			if baseline <= 0:
-				if log_average > 19.05:
-					amount += 19.05
+				if log_average > 12.7:
+					amount += 7
 				else:
-					amount += 38.1
+					amount += 25.4
 			else:
-				if log_average > 19.05:
+				if log_average > 12.7:
 					amount += baseline
 				else:
-					amount += baseline + 19.05
+					amount += baseline + 12.7
 		else:
 			if baseline <= 0:
-				if log_average > 19.05:
+				if log_average > 12.7:
 					pass
 				else:
 					pass
 			else:
-				if log_average > 19.05:
+				if log_average > 12.7:
 					amount += baseline
 				else:
 					amount += baseline
@@ -172,13 +176,14 @@ def calculate():
 
 	#It takes the pump 4 seconds to dispense 5mL of water
 	seconds = (amount * 4) / 5
+	print("Dispensed " + str(amount) + " in " + str(seconds) + " seconds" )
 	return seconds
 
 def main():
 	global retry, day_watered
 
 	current_time = int(datetime.now().strftime("%H"))
-	if retry == False and day_watered != datetime.now().strftime("%D") and current_time == 14:
+	if retry == False and day_watered != datetime.now().strftime("%D") and current_time == 18:
 		make_lists = create_lists()
 		if make_lists == False:
 			retry = True
@@ -189,6 +194,7 @@ def main():
 			calc = calculate()
 			if type(calc) == int or type(calc) == float:
 				Dispense.dispense(calc)
+				print("Done Dispensing")
 			else:
 				print("Error - Seconds is not type int or float")
 
